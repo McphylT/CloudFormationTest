@@ -66,17 +66,17 @@ jobs:
  
   # Exercise: Infrastructure Creation
   # Exercise - Rollback
-  create_infrastructure: 
-    docker:
-      - image: amazon/aws-cli
-    steps:
-      - checkout
-      - run:
-          name: Create Cloudformation Stack
-          command: |
-            aws cloudformation deploy \
-              --template-file template.yml \
-              --stack-name InitialStack\
+  # create_infrastructure: 
+  #   docker:
+  #     - image: amazon/aws-cli
+  #   steps:
+  #     - checkout
+  #     - run:
+  #         name: Create Cloudformation Stack
+  #         command: |
+  #           aws cloudformation deploy \
+  #             --template-file template.yml \
+  #             --stack-name InitialStack\
           
       # Fail the job intentionally to simulate an error.
       # Uncomment the line below if you want to fail the current step
@@ -85,43 +85,43 @@ jobs:
 
 
   # Exercise: Config and Deployment
-  configure_infrastructure: 
-    docker:
-      - image: python:3.7-alpine3.11
-    steps:
-      - checkout
-      - add_ssh_keys:
-          fingerprints: ["37:77:67:cf:0d:28:d0:54:3d:3c:2f:fa:dc:b2:e8:28"] # You can get this ID in the section where you registered the SSH Key
-      - add_ssh_keys:
-          fingerprint: ["81:07:77:02:18:0a:65:1e:06:3e:45:f0:bc:3c:e1:97"]
-      - run:
-          name: Install Ansible
-          command: |
-            # install the dependencies needed for your playbook
-            apk add --update ansible 
-      - run:
-          name: Run Playbook and Configure server
-          command: |
-            ansible-playbook -i inventory.txt main4.yml --private-key udacity.pem
-
-  # # Exercise: Smoke Testing
-  # smoke_test:
+  # configure_infrastructure: 
   #   docker:
-  #     - image: alpine:latest
+  #     - image: python:3.7-alpine3.11
   #   steps:
-  #     - run: apk add --update curl
+  #     - checkout
+  #     - add_ssh_keys:
+  #         fingerprints: ["37:77:67:cf:0d:28:d0:54:3d:3c:2f:fa:dc:b2:e8:28"] # You can get this ID in the section where you registered the SSH Key
+  #     - add_ssh_keys:
+  #         fingerprint: ["81:07:77:02:18:0a:65:1e:06:3e:45:f0:bc:3c:e1:97"]
   #     - run:
-  #         name: smoke test
+  #         name: Install Ansible
   #         command: |
-  #           URL="https://blog.udacity.com/"
-  #           # Test if website exists
-  #           if curl -s --head ${URL} 
-  #           then
-  #             return 0
-  #           else
-  #             return 1
-  #           fi
-  #     - destroy_environment      
+  #           # install the dependencies needed for your playbook
+  #           apk add --update ansible 
+  #     - run:
+  #         name: Run Playbook and Configure server
+  #         command: |
+  #           ansible-playbook -i inventory.txt main4.yml
+
+  # Exercise: Smoke Testing
+  smoke_test:
+    docker:
+      - image: alpine:latest
+    steps:
+      - run: apk add --update curl
+      - run:
+          name: smoke test
+          command: |
+            URL="https://blog.udacity.com/"
+          #Test if website exists
+            if curl -s --head ${URL} 
+            then
+              return 0
+            else
+              return 1
+            fi
+      - destroy_environment      
   
   # # Exercise: Promote to Production - Job 1 
   # # Prerequisite: 
@@ -225,6 +225,7 @@ workflows:
       #      - upload_file
       - create_infrastructure
       - configure_infrastructure
+      - smoke_test
       # - create_and_deploy_front_end
       # - promote_to_production:
       #     requires: 
