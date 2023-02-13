@@ -17,7 +17,7 @@ commands:
     steps:
       - run: echo << parameters.id >>
 
-  Exercise - Rollback
+  # Exercise - Rollback
   destroy_environment:
     steps:
       - run:
